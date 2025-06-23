@@ -1,3 +1,90 @@
 \section{Introduction}
 
+\gd{
+    Scope.
+    What problem this paper works on.
+    Why the problem is important.
+}
 BFT~\cite{bgp}.
+Demand high-throughput permissioned BFT protocols.
+Goal: be scalable in performance.
+The throughput should scale up with the number of nodes.
+
+\gd{
+    Current status.
+    What are the previous works on this problem.
+}
+Leaderless BFT protocols resolve leader bottleneck, parallelize block proposal and validation.
+Autobahn~\cite{autobahn}.
+Bullshark~\cite{bullshark}.
+Narwhal and Tusk~\cite{narwhal}.
+
+Stateless BFT protocols outsource the state and the execution to storage nodes and parallelize the execution among them.
+SlimChain~\cite{slimchain}.
+
+Sharded BFT protocols shard the transaction processing, parallelize the whole consensus and execution.
+Elastico~\cite{elastico}.
+Omniledger~\cite{omniledger}.
+RapidChain~\cite{rapidchain}.
+
+\gd{
+    Gap.
+    What feature that previous works failed to secure and why they give up on it.
+    Why the feature matters for the problem.
+}
+Leaderless BFT loses its effectiveness as the execution becomes the throughput bottleneck, and sharded BFT enforces unconventional security model.
+Observation: consensus takes bandwidth resource and execution takes computation resource, and data center per-host bandwidth increases much faster than computation.
+Moreover, bandwidth consumption of block dissemination can be optimized \emph{globally\slash systematically}.
+Chop chop~\cite{chop}.
+Kauri~\cite{kauri}.
+Local execution parallelism can be leveraged, but it won't provide the scalability we desire.
+
+Stateless BFT and sharded BFT reduce execution overhead systematically, but their approaches adopt unconventional security model and introduce performance penalty.
+Stateless BFT employs off-chain storage nodes.
+Although it claims that off-chain nodes are untrusted and are allowed to behave arbitrarily, it can only improve performance based on sensible execution of the storage nodes, e.g., their execution should be rarely conflicted with each other, or they should execute at all.
+Furthermore, stateless BFT gives up the responsibility of ordering as well, losing control of fairness.
+Pomp\=e~\cite{pompe}.
+From performance aspect, stateless BFT suffers from additional latency overhead of communicating with the storage nodes.
+Even more performance penalty when the execution of storage nodes conflicts with each other.
+
+Sharded BFT adopts all kinds of customizations to the security model.
+Reduced failure rate.
+Pre-determined failure clusters.
+Synchronous network model.
+Trusted hardware.
+Also pay performance penalty for cross-shard coordination.
+
+Problem settings: permissioned BFT with conventional security model and be scalable in execution.
+Match the security model of conventional BFT protocols gives us practicality and wider adoption.
+Match the scalability of stateless and sharded BFT to maximize performance.
+
+\gd{
+    Approach.
+    What we have noticed and how it leads to our solution.
+    Intuitively, how the solution different from previous approaches so not missing the gapping feature, and how it covers the other features as previous works despite being different.
+}
+Observation from leaderless BFT and reliable dissemination works: block and quorum certificate dissemination can be systematically optimized because they feature \emph{transparent authentication}.
+Received blocks and certificates can be independently attested by the receiver.
+Verifiable computation and authenticated data structure bring this opportunity of remote attestation to the execution as well.
+Thus, in stateless BFT, every transaction only need to be executed once without compromising safety, superior to the sharded approach.
+
+However, in data center, nodes need not be stateless.
+Storage is abundant, each node can afford to store full state.
+Having the nodes themselves collaboratively execute the transactions instead of relying on completely untrusted external collaborators brings us closer to conventional security model, because we can rely on a (super)majority of the nodes being correct.
+
+Key insight: the \emph{executor} role in stateless BFT can be merged with the \emph{proposer} in leaderless BFT.
+In stateless BFT, each executor concurrently executes disjoint transactions.
+While in leaderless BFT, each proposer concurrently proposes disjoint transactions.
+In stateless BFT, the execution outcome of the executors need to be remotely attested by a majority of the nodes.
+While in leaderless BFT, the proposals also need to be endorsed by a majority of the nodes.
+Most importantly, the execution of the storage nodes form a partially-ordered causal relation based on the based blocks of each execution.
+While in DAG-based leaderless BFT, the blocks also form a causal relation based on the links between rounds, and only the blocks with sufficient causal relations can be committed.
+This correspondence inspire us to pair a stateless BFT with a DAG-based leaderless BFT as its atomic broadcast solution, colocate the storage nodes with the consensus nodes, extend the semantics of the broadcast primitives of leaderless BFT to further disseminate and attest the execution outcomes, and re-propose the causal links to respect the causal relation of the execution of the blocks.
+
+Approach.
+Nodes speculatively execute blocks before proposing and propose blocks along with their execution outcomes.
+The execution must \emph{happen after} a supermajority of the accepted blocks proposed by disjoint nodes from last round.
+Remote nodes can attest for the execution and install the write-sets without replicated execution.
+The proposal is only accepted if the execution is correct and does not conflict with other accepted proposals.
+The commit rule is the same as the original leaderless BFT.
+\gd{Need to further revise the design details very carefully.}
