@@ -1,0 +1,26 @@
+\pdfminorversion=7
+\pdfsuppresswarningpagegroup=1
+
+\newif\ifacm
+\newif\ifdraft
+\newif\ifarxiv
+\newif\ifspace
+\newif\ifapx
+
+\documentclass[10pt,sigconf,anonymous]{acmart}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\settopmatter{printfolios=true, printacmref=false}
+
+\frenchspacing
+\bibliographystyle{abbrv}
+
+\begin{document}
+\title{Unleash Full Potential Of Scalability In Leaderless BFT By Execution Attestation}
+
+\input{sections/abstract}
+\maketitle
+
+\input{sections/introduction}
+
+\bibliography{paper}
+\end{document}
