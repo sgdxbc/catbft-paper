@@ -1,0 +1,20 @@
+\newcommand{\sys}{\textsc{CatBFT}\xspace}
+
+\newcommand{\yes}{\textcolor{green}{\ding{51}}}
+\newcommand{\no}{\textcolor{red}{\ding{55}}}
+
+\ifdraft
+\newcommand{\editorial}[2]{{\textcolor{#1}{#2}}\xspace}
+\else
+\newcommand{\editorial}[2]{\ignorespaces}
+\fi
+
+\ifdraft
+\newenvironment{outline}{\color{blue} \textbf{Outline:}}{}
+\else
+\excludecomment{outline}
+\fi
+\newcommand{\XXX}{\editorial{red}{XXX}}
+\newcommand{\xxx}[1]{\editorial{red}{XXX #1}}
+\newcommand{\lijl}[1]{\editorial{cyan}{JL: #1}}
+\newcommand{\gd}[1]{\editorial{olive}{GD: #1}}
