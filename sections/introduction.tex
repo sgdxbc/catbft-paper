@@ -14,7 +14,7 @@ The throughput should scale up with the number of nodes.
     Current status.
     What are the previous works on this problem.
 }
-Leaderless BFT protocols resolve leader bottleneck, parallelize block proposal and validation.
+DAG-based BFT protocols resolve leader bottleneck, parallelize block proposal and validation.
 Autobahn~\cite{autobahn}.
 Bullshark~\cite{bullshark}.
 Narwhal and Tusk~\cite{narwhal}.
@@ -32,7 +32,7 @@ RapidChain~\cite{rapidchain}.
     What feature that previous works failed to secure and why they give up on it.
     Why the feature matters for the problem.
 }
-Leaderless BFT loses its effectiveness as the execution becomes the throughput bottleneck, and sharded BFT enforces unconventional security model.
+DAG-based BFT loses its effectiveness as the execution becomes the throughput bottleneck.
 Observation: consensus takes bandwidth resource and execution takes computation resource, and data center per-host bandwidth increases much faster than computation.
 Moreover, bandwidth consumption of block dissemination can be optimized \emph{globally\slash systematically}.
 Chop chop~\cite{chop}.
@@ -55,7 +55,7 @@ Trusted hardware.
 Also pay performance penalty for cross-shard coordination.
 
 Problem settings: permissioned BFT with conventional security model and be scalable in execution.
-Match the security model of conventional BFT protocols gives us practicality and wider adoption.
+Match the security model of conventional (DAG-based) BFT protocols gives us practicality and wider adoption.
 Match the scalability of stateless and sharded BFT to maximize performance.
 
 \gd{
@@ -63,7 +63,7 @@ Match the scalability of stateless and sharded BFT to maximize performance.
     What we have noticed and how it leads to our solution.
     Intuitively, how the solution different from previous approaches so not missing the gapping feature, and how it covers the other features as previous works despite being different.
 }
-Observation from leaderless BFT and reliable dissemination works: block and quorum certificate dissemination can be systematically optimized because they feature \emph{transparent authentication}.
+Observation from DAG-based BFT and reliable dissemination works: block and quorum certificate dissemination can be systematically optimized because they feature \emph{transparent authentication}.
 Received blocks and certificates can be independently attested by the receiver.
 Verifiable computation and authenticated data structure bring this opportunity of remote attestation to the execution as well.
 Thus, in stateless BFT, every transaction only need to be executed once without compromising safety, superior to the sharded approach.
@@ -72,19 +72,19 @@ However, in data center, nodes need not be stateless.
 Storage is abundant, each node can afford to store full state.
 Having the nodes themselves collaboratively execute the transactions instead of relying on completely untrusted external collaborators brings us closer to conventional security model, because we can rely on a (super)majority of the nodes being correct.
 
-Key insight: the \emph{executor} role in stateless BFT can be merged with the \emph{proposer} in leaderless BFT.
+Key insight: the \emph{executor} role in stateless BFT can be merged with the \emph{proposer} in DAG-based BFT.
 In stateless BFT, each executor concurrently executes disjoint transactions.
-While in leaderless BFT, each proposer concurrently proposes disjoint transactions.
+While in DAG-based BFT, each proposer concurrently proposes disjoint transactions.
 In stateless BFT, the execution outcome of the executors need to be remotely attested by a majority of the nodes.
-While in leaderless BFT, the proposals also need to be endorsed by a majority of the nodes.
+While in DAG-based BFT, the proposals also need to be endorsed by a majority of the nodes.
 Most importantly, the execution of the storage nodes form a partially-ordered causal relation based on the based blocks of each execution.
-While in DAG-based leaderless BFT, the blocks also form a causal relation based on the links between rounds, and only the blocks with sufficient causal relations can be committed.
-This correspondence inspire us to pair a stateless BFT with a DAG-based leaderless BFT as its atomic broadcast solution, colocate the storage nodes with the consensus nodes, extend the semantics of the broadcast primitives of leaderless BFT to further disseminate and attest the execution outcomes, and re-propose the causal links to respect the causal relation of the execution of the blocks.
+While in DAG-based BFT, the blocks also form a causal relation based on the links between rounds, and only the blocks with sufficient causal relations can be committed.
+This correspondence inspire us to pair a stateless BFT with a DAG-based BFT as its atomic broadcast solution, colocate the storage nodes with the consensus nodes, extend the semantics of the broadcast primitives of DAG-based BFT to further disseminate and attest the execution outcomes, and re-propose the causal links to respect the causal relation of the execution of the blocks.
 
 Approach.
 Nodes speculatively execute blocks before proposing and propose blocks along with their execution outcomes.
 The execution must \emph{happen after} a supermajority of the accepted blocks proposed by disjoint nodes from last round.
 Remote nodes can attest for the execution and install the write-sets without replicated execution.
 The proposal is only accepted if the execution is correct and does not conflict with other accepted proposals.
-The commit rule is the same as the original leaderless BFT.
+The commit rule is the same as the original DAG-based BFT.
 \gd{Need to further revise the design details very carefully.}
